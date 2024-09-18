@@ -90,6 +90,13 @@ def transformation_matrix_roll(matrix, theta):
 
     return matrix
 
+#to do
+#add linear transformation to this one
+#       it needs to go in the direction
+#       the plane is facing rather than
+#       parrallel with x y z
+
+
 def transformation_matrix_pitch(matrix, theta):
     
     rotate_matrix = np.array([
