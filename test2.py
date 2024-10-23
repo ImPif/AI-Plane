@@ -77,7 +77,9 @@ def Cube(cubeArray):
             glVertex3fv(cubeArray[vertex])
     glEnd()
 
-def transformation_matrix_roll(matrix, theta):
+def transformation_matrix_roll(matrix, theta, current_pitch):
+
+    transformation_matrix_pitch()
 
     rotate_matrix = np.array([
         [math.cos(theta),        math.sin(theta), 0],
@@ -97,7 +99,7 @@ def transformation_matrix_roll(matrix, theta):
 #       parrallel with x y z
 
 
-def transformation_matrix_pitch(matrix, theta):
+def transformation_matrix_pitch(matrix, theta, current_roll):
     
     rotate_matrix = np.array([
         [1,               0,                      0],
@@ -123,6 +125,9 @@ def main():
     [-.2, .2, .2]
     ])
 
+    current_roll = 0
+    current_pitch = 0
+
     pygame.init()
     display = (800,600)
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
@@ -143,15 +148,19 @@ def main():
 
                 #roll left and right
                 if event.key == pygame.K_KP4:
-                    array3d = transformation_matrix_roll(array3d, 5)
+                    array3d = transformation_matrix_roll(array3d, .1, current_pitch)
+                    current_roll += .1
                 if event.key == pygame.K_KP6:
-                    array3d = transformation_matrix_roll(array3d, -5)
+                    array3d = transformation_matrix_roll(array3d, -.1, current_pitch)
+                    current_roll += .1
 
                 #pitch up and down
                 if event.key == pygame.K_PAGEUP:
-                    array3d = transformation_matrix_pitch(array3d, 1)
+                    array3d = transformation_matrix_pitch(array3d, .1, current_roll)
+                    current_pitch += .1
                 if event.key == pygame.K_PAGEDOWN:
-                    array3d = transformation_matrix_pitch(array3d, -1)
+                    array3d = transformation_matrix_pitch(array3d, -.1, current_roll)
+                    current_pitch += .1
 
                 #forward and backwards
                 if event.key == pygame.K_KP8:
