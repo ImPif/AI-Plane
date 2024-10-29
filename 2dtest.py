@@ -7,6 +7,7 @@ import math
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+# Define the edges, vertices, and colors as before
 edges = (
     (0,1),
     (0,3),
@@ -20,9 +21,9 @@ edges = (
     (5,1),
     (5,4),
     (5,7)
-    )
+)
 
-cube_v =[
+cube_v = [
     [.1, -.1, -.1],
     [.1, .1, -.1],
     [-.1, .1, -.1],
@@ -46,21 +47,12 @@ colors = (
     (1,0,0),
     (1,1,1),
     (0,1,1),
-    )
+)
 
 surfaces = (
     (0, 1, 2),
     (3, 4, 5)
 )
-
-
-
-
-
-
-
-
-
 
 def Cube(cubeArray):
     glBegin(GL_LINES)
@@ -77,9 +69,8 @@ def Cube(cubeArray):
             glVertex3fv(cubeArray[vertex])
     glEnd()
 
-#rotates either pitch or roll so that the transformation applies properly
-#roll == 0, pitch == 1
-def transform(matrix,  roll, amount, x, y, type):
+# Rotation and transformation functions as before
+def transform(matrix, roll, amount, x, y, type):
     match type:
         case 0:
             return_matrix = transformation_matrix_translationx(matrix, -x)
@@ -89,51 +80,31 @@ def transform(matrix,  roll, amount, x, y, type):
             return_matrix = transformation_matrix_translationy(return_matrix, y)
             return return_matrix
         case 1:
-            return_matrix = transformation_matrix_translationx(matrix,amount)
+            return_matrix = transformation_matrix_translationx(matrix, amount)
             return return_matrix
         case 2:
             return_matrix = transformation_matrix_translationy(matrix, amount)
             return return_matrix
-#transformation to move laterally
 
 def transformation_matrix_translationx(matrix, amount):
-
     for vertex in range(len(matrix)):
         matrix[vertex][1] += amount
     return matrix
 
 def transformation_matrix_translationy(matrix, amount):
-
     for vertex in range(len(matrix)):
         matrix[vertex][0] += amount
     return matrix
-        
 
-
-#transformation to rotate for roll
 def transformation_matrix_roll(matrix, theta):
-
     rotate_matrix = np.array([
-        [math.cos(theta),        math.sin(theta), 0],
+        [math.cos(theta), math.sin(theta), 0],
         [(-1) * math.sin(theta), math.cos(theta), 0],
-        [0,                      0,               1]
-        ])
-
+        [0, 0, 1]
+    ])
     for vector in range(len(matrix)):
         matrix[vector] = np.dot(rotate_matrix, matrix[vector])
-
     return matrix
-
-#to do
-#add linear transformation to this one
-#       it needs to go in the direction
-#       the plane is facing rather than
-#       parrallel with x y z
-
-
-
-# Initialize a direction vector for the plane
-direction_vector = np.array([1, 0, 0])  # Points along the x-axis
 
 # Rotate the direction vector using roll (theta)
 def rotate_direction_vector(vector, theta):
@@ -144,46 +115,25 @@ def rotate_direction_vector(vector, theta):
     ])
     return np.dot(rotate_matrix, vector)
 
-# Move the matrix along the direction vector
-def translate_along_direction(matrix, direction_vector, amount):
+# Move the matrix along the direction vector with adjustable thrust
+def translate_along_direction(matrix, direction_vector, thrust):
     for vertex in matrix:
-        vertex[0] += direction_vector[0] * amount
-        vertex[1] += direction_vector[1] * amount
+        vertex[0] += direction_vector[0] * thrust
+        vertex[1] += direction_vector[1] * thrust
     return matrix
 
 def main():
-    array3d = np.array([
-    [.1, -.1, -.1],
-    [.1, .1, -.1],
-    [-.1, .1, -.1],
-    [-.1, -.1, -.1],
-    [.2, -.2, .2],
-    [.2, .2, .2],
-    [-.2, -.2, .2],
-    [-.2, .2, .2]
-    ])# Your original vertices
-    default_array = np.array([
-    [.1, -.1, -.1],
-    [.1, .1, -.1],
-    [-.1, .1, -.1],
-    [-.1, -.1, -.1],
-    [.2, -.2, .2],
-    [.2, .2, .2],
-    [-.2, -.2, .2],
-    [-.2, .2, .2]
-    ])
-
+    array3d = np.array(cube_v)
     direction_vector = np.array([1, 0, 0])  # Initial direction
-    pitch = 0
-    lateral = 0
-    horizontal = 0
+    thrust = 0.0  # Initial thrust (speed)
+    max_thrust = 1.0  # Maximum thrust limit
 
     pygame.init()
     pygame.key.set_repeat(100)
-    display = (800,600)
-    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
-    gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
-    glTranslatef(0,0, -10)
+    display = (1500, 800)
+    pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    glTranslatef(0, 0, -10)
     glRotatef(25, 2, 1, 0)
 
     while True:
@@ -193,21 +143,21 @@ def main():
                 quit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_KP8:
-                    pitch += 0.03
-                    direction_vector = rotate_direction_vector(direction_vector, 0.1)
-                if event.key == pygame.K_KP2:
-                    pitch -= 0.03
-                    direction_vector = rotate_direction_vector(direction_vector, -0.1)
-
+                if event.key == pygame.K_LEFT:
+                    direction_vector = rotate_direction_vector(direction_vector, 0.2)
+                if event.key == pygame.K_RIGHT:
+                    direction_vector = rotate_direction_vector(direction_vector, -0.2)
                 if event.key == pygame.K_UP:
-                    array3d = translate_along_direction(array3d, direction_vector, 0.1)
+                    thrust = min(thrust + 0.01, max_thrust)  # Increase thrust
                 if event.key == pygame.K_DOWN:
-                    array3d = translate_along_direction(array3d, direction_vector, -0.1)
+                    thrust = max(thrust - 0.01, 0)  # Decrease thrust
 
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        # Apply the movement with the current thrust level
+        array3d = translate_along_direction(array3d, direction_vector, thrust)
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         Cube(array3d)
         pygame.display.flip()
-        pygame.time.wait(1)
+        pygame.time.wait(10)
 
-main()        
+main()
