@@ -116,25 +116,49 @@ def rotate_direction_vector(vector, theta):
     return np.dot(rotate_matrix, vector)
 
 # Move the matrix along the direction vector with adjustable thrust
-def translate_along_direction(matrix, direction_vector, thrust):
+def translate_along_direction(matrix, direction_vector, velocity):
     for vertex in matrix:
-        vertex[0] += direction_vector[0] * thrust
-        vertex[1] += direction_vector[1] * thrust
+        vertex[0] += direction_vector[0] * velocity
+        vertex[1] += direction_vector[1] * velocity
     return matrix
+
+def translate_lift(matrix, lift_vector, velocity):
+    for vertex in matrix:
+        vertex[0] += lift_vector[0] * (velocity * 0.5)
+        vertex[1] += lift_vector[1] * (velocity * 0.5)
+    return matrix
+
+def translate_gravity(matrix):
+    for vertex in matrix:
+        vertex[1] -= 0.01
+    return matrix
+
+def change_velocity(max_velocity, thrust, velocity):
+    if (velocity < max_velocity):
+        velocity += 0.001
+        return velocity
+    elif (velocity > max_velocity):
+        velocity -= 0.001
+        return velocity
+    return velocity
+
 
 def main():
     array3d = np.array(cube_v)
     direction_vector = np.array([1, 0, 0])  # Initial direction
+    lift_vector = np.array([0,.2,0]) # Initial lift direction
     thrust = 0.0  # Initial thrust (speed)
-    max_thrust = 1.0  # Maximum thrust limit
+    max_thrust = 1  # Maximum thrust limit
+    velocity = 0.02
+    max_velocity = 0.1
 
     pygame.init()
     pygame.key.set_repeat(100)
     display = (1500, 800)
     pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
-    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
-    glTranslatef(0, 0, -10)
-    glRotatef(25, 2, 1, 0)
+    gluPerspective(45, (display[0] / display[1]), 0.1, 150.0)
+    glTranslatef(0, 0, -80)
+    #glRotatef(25, 2, 1, 0)
 
     while True:
         for event in pygame.event.get():
@@ -145,16 +169,31 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     direction_vector = rotate_direction_vector(direction_vector, 0.2)
+                    lift_vector = rotate_direction_vector(lift_vector, 0.2)
+                    print("Left key counter-clockwise")
+                    print("Direction Vector: ", direction_vector)
+                    print("Lift vector: ", lift_vector, "\n")
                 if event.key == pygame.K_RIGHT:
                     direction_vector = rotate_direction_vector(direction_vector, -0.2)
+                    lift_vector = rotate_direction_vector(lift_vector, -0.2)
+                    print("Right key clockwise")
+                    print("Direction Vector: ", direction_vector)
+                    print("Lift vector: ", lift_vector, "\n")
                 if event.key == pygame.K_UP:
-                    thrust = min(thrust + 0.01, max_thrust)  # Increase thrust
+                    thrust = min(thrust + 0.1, max_thrust)  # Increase thrust
+                    lift_vector = lift_vector + np.array([0, 0.01, 0])
+                    print("Velocity: " , velocity, "\nThrust: ", thrust)
                 if event.key == pygame.K_DOWN:
-                    thrust = max(thrust - 0.01, 0)  # Decrease thrust
+                    thrust = max(thrust - 0.1, 0)  # Decrease thrust
+                    lift_vector = lift_vector - np.array([0, 0.01, 0])
+                    print("Velocity: " , velocity, "\nThrust: ", thrust)
+
 
         # Apply the movement with the current thrust level
-        array3d = translate_along_direction(array3d, direction_vector, thrust)
-
+        array3d = translate_along_direction(array3d, direction_vector, velocity)
+        array3d = translate_lift(array3d, lift_vector, thrust)
+        array3d = translate_gravity(array3d)
+        velocity = change_velocity(max_velocity, thrust, velocity)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         Cube(array3d)
         pygame.display.flip()
