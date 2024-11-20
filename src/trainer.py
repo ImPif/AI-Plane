@@ -1,8 +1,13 @@
+import time
 from plane import *
 
 def main():
     planes = [Plaine(cube_v, edges, surfaces, colors, np.array([1, 0, 0]), np.array([0,.2,0]), 0, 1, 0.02, 0.1, 10, 10)]
-    
+    planes.append(Plaine(cube_v, edges, surfaces, colors, np.array([1, 0, 0]), np.array([0,.2,0]), 0, 1, 0.02, 0.1, 10, 10))
+    planes.append(Plaine(cube_v, edges, surfaces, colors, np.array([1, 0, 0]), np.array([0,.2,0]), 0, 1, 0.02, 0.1, 10, 10))
+    planes.append(Plaine(cube_v, edges, surfaces, colors, np.array([1, 0, 0]), np.array([0,.2,0]), 0, 1, 0.02, 0.1, 10, 10))
+    planes.append(Plaine(cube_v, edges, surfaces, colors, np.array([1, 0, 0]), np.array([0,.2,0]), 0, 1, 0.02, 0.1, 10, 10))
+
     pygame.init()
     pygame.key.set_repeat(100)
     display = (1500, 800)
@@ -10,6 +15,8 @@ def main():
     gluPerspective(45, (display[0] / display[1]), 0.1, 150.0)
     glTranslatef(0, 0, -80)
     #glRotatef(25, 2, 1, 0)
+
+    time1 = time.time()
 
     for x in range(10000):
         for event in pygame.event.get():
@@ -26,6 +33,10 @@ def main():
             plane()
             # print(plane)
         pygame.display.flip()
+
+    time2 = time.time()
+
+    print(time2 - time1)
 
 
 main()
