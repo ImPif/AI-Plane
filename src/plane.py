@@ -18,6 +18,9 @@ class Plaine:
         self.max_velocity = max_velocity
         self.array3d = self.plane_initializer(starting_x, starting_y, plane_array)
 
+    def __str__(self):
+        return np.array2string(self.array3d)
+
     #Initialize position of plane
     def plane_initializer(self, x, y, array3d):
         array3d = np.array(array3d)        

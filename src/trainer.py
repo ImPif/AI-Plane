@@ -11,7 +11,7 @@ def main():
     glTranslatef(0, 0, -80)
     #glRotatef(25, 2, 1, 0)
 
-    for x in range(100000):
+    for x in range(10000):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -24,8 +24,8 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         for plane in planes:
             plane()
+            # print(plane)
         pygame.display.flip()
-        pygame.time.wait(1)
 
 
 main()

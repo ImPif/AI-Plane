@@ -11,6 +11,10 @@ To run:
     pip install --upgrade keras-cv
     pip install --upgrade keras-hub
     pip install --upgrade keras    
+
+
+
+    ##### could use tensorflow instead, all examples use it as well
     #If you aren't using gpu cuda cores
     pip3 install torch    https://pytorch.org/get-started/locally/torchvision torchaudio
 
